@@ -1,11 +1,14 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using Microsoft.Azure.Management.DigitalTwins;
+using Microsoft.Azure.Management.ResourceManager;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+using System.Net;
+
 namespace DigitalTwins.Tests.Helpers
 {
-
-    using Microsoft.Azure.Management.DigitalTwins;
-    using Microsoft.Azure.Management.ResourceManager;
-    using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
-    using System.Net;
-    class DigitalTwinsTestUtilities
+    internal class DigitalTwinsTestUtilities
     {
         public static string DefaultLocation = "westus2";
         public static string DefaultInstanceName = "DigitalTwinsSDK";
@@ -16,15 +19,16 @@ namespace DigitalTwins.Tests.Helpers
         {
             if (handler != null)
             {
-                handler.IsPassThrough = true;
+                handler.IsPassthrough = true;
             }
  
-            return context.GetServiceClient<AzureDigitalTwinsManagementClient>(handlers: handler ?? new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK });
+            return context.GetServiceClient<AzureDigitalTwinsManagementClient>(
+                handlers: handler ?? new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK });
         }
 
         public static ResourceManagementClient GetResourceManagementClient(MockContext context, RecordedDelegatingHandler handler)
         {
-            handler.IsPassThrough = true;
+            handler.IsPassthrough = true;
             var client = context.GetServiceClient<ResourceManagementClient>(handlers: handler);
             return client;
         }
