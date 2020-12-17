@@ -3,9 +3,7 @@
 
 using DigitalTwins.Tests.Helpers;
 using Microsoft.Azure.Management.DigitalTwins;
-using Microsoft.Azure.Management.DigitalTwins.Models;
 using Microsoft.Azure.Management.ResourceManager;
-using Microsoft.Azure.Management.ResourceManager.Models;
 using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
 using System;
 using System.Net;
@@ -15,6 +13,11 @@ namespace DigitalTwins.Tests.ScenarioTests
     public class DigitalTwinsTestBase
     {
         private readonly object _initializeLock = new object();
+
+        protected static string DefaultLocation = "westus2";
+        protected static string DefaultInstanceName = "DigitalTwinsSdk";
+        protected static string DefaultEndpointName = "DigitalTwinsSdkEndpoint";
+        protected static string DefaultResourceGroupName = "DigitalTwinsSdkRg";
 
         protected bool IsInitialized { get; private set; } = false;
         protected ResourceManagementClient ResourcesClient { get; private set; }
@@ -37,18 +40,18 @@ namespace DigitalTwins.Tests.ScenarioTests
                 }
 
                 TestEnv = TestEnvironmentFactory.GetTestEnvironment();
-                
-                ResourcesClient = DigitalTwinsTestUtilities.GetResourceManagementClient(
+
+                ResourcesClient = GetResourceManagementClient(
                     context,
                     new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK });
 
-                DigitalTwinsClient = DigitalTwinsTestUtilities.GetDigitalTwinsClient(
+                DigitalTwinsClient = GetDigitalTwinsClient(
                     context,
                     new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK });
 
                 if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURE_LOCATION")))
                 {
-                    Location = DigitalTwinsTestUtilities.DefaultLocation;
+                    Location = DefaultLocation;
                 }
                 else
                 {
@@ -59,40 +62,28 @@ namespace DigitalTwins.Tests.ScenarioTests
             }
         }
 
-        protected DigitalTwinsDescription CreateDigitalTwinsInstance(ResourceGroup resourceGroup, string location, string digitalTwinsInstanceName)
+        private static AzureDigitalTwinsManagementClient GetDigitalTwinsClient(
+            MockContext context,
+            RecordedDelegatingHandler handler = null)
         {
-            var digitalTwinsDescription = new DigitalTwinsDescription
+            if (handler == null)
             {
-                Location = location,
-            };
+                handler = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            }
+            else
+            {
+                handler.IsPassthrough = true;
+            }
 
-            return DigitalTwinsClient.DigitalTwins.CreateOrUpdate(
-                resourceGroup.Name,
-                digitalTwinsInstanceName,
-                digitalTwinsDescription);
+            return context.GetServiceClient<AzureDigitalTwinsManagementClient>(false, handler);
         }
 
-        protected DigitalTwinsDescription UpdateDigitalTwinsInstance(ResourceGroup resourceGroup, DigitalTwinsDescription digitalTwinsDescription, string digitalTwinsInstanceName)
+        private static ResourceManagementClient GetResourceManagementClient(
+            MockContext context,
+            RecordedDelegatingHandler handler)
         {
-            return DigitalTwinsClient.DigitalTwins.CreateOrUpdate(
-               resourceGroup.Name,
-               digitalTwinsInstanceName,
-               digitalTwinsDescription);
-        }
-
-        protected ResourceGroup CreateResourceGroup(string resourceGroupName)
-        {
-            return ResourcesClient.ResourceGroups.CreateOrUpdate(
-                resourceGroupName,
-                new ResourceGroup
-                {
-                    Location = DigitalTwinsTestUtilities.DefaultLocation
-                });
-        }
-
-        protected void DeleteResourceGroup(string resourceGroupName)
-        {
-            ResourcesClient.ResourceGroups.Delete(resourceGroupName);
+            handler.IsPassthrough = true;
+            return context.GetServiceClient<ResourceManagementClient>(false, handler);
         }
     }
 }

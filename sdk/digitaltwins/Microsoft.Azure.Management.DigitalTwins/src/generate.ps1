@@ -1,6 +1,6 @@
 try
 {
-	Start-AutoRestCodeGeneration -ResourceProvider "digitaltwins/resource-manager" -AutoRestVersion "v2" -SpecsRepoFork "drwill-ms" -SpecsRepoBranch "drwill/adt"
+	Start-AutoRestCodeGeneration -ResourceProvider "digitaltwins/resource-manager" -AutoRestVersion "v2"
 }
 catch
 {
