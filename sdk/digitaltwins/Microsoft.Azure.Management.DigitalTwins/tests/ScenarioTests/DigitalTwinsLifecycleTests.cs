@@ -9,6 +9,7 @@ using Microsoft.Azure.Management.DigitalTwins;
 using Microsoft.Azure.Management.DigitalTwins.Models;
 using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
 using Xunit;
+using FluentAssertions;
 
 namespace DigitalTwins.Tests.ScenarioTests
 {
@@ -52,32 +53,35 @@ namespace DigitalTwins.Tests.ScenarioTests
                 DigitalTwinsTestUtilities.DefaultLocation,
                 DigitalTwinsTestUtilities.DefaultInstanceName);
 
-            Assert.NotNull(digitalTwinsInstance);
-            Assert.Equal(DigitalTwinsTestUtilities.DefaultInstanceName, digitalTwinsInstance.Name);
-            Assert.Equal(DigitalTwinsTestUtilities.DefaultLocation, digitalTwinsInstance.Location);
+            digitalTwinsInstance.Should().NotBeNull();
+            digitalTwinsInstance.Name.Should().Be(DigitalTwinsTestUtilities.DefaultInstanceName);
+            digitalTwinsInstance.Location.Should().Be(DigitalTwinsTestUtilities.DefaultLocation);
 
             // Add and Get Tags
-            IDictionary<string, string> tags = new Dictionary<string, string>
-            {
-                { "key1", "value1" },
-                { "key2", "value2" },
-            };
+            const string key2 = "key2";
+            const string value2 = "value2";
+            var patch = new DigitalTwinsPatchDescription(
+                tags: new Dictionary<string, string>
+                {
+                    { "key1", "value1" },
+                    { key2, value2 },
+                });
             digitalTwinsInstance = DigitalTwinsClient.DigitalTwins.Update(
                 DigitalTwinsTestUtilities.DefaultResourceGroupName,
                 DigitalTwinsTestUtilities.DefaultInstanceName,
-                tags);
+                patch);
 
             Assert.NotNull(digitalTwinsInstance);
-            Assert.True(digitalTwinsInstance.Tags.Count().Equals(2));
-            Assert.Equal("value2", digitalTwinsInstance.Tags["key2"]);
+            digitalTwinsInstance.Tags.Count().Should().Be(2);
+            digitalTwinsInstance.Tags[key2].Should().Be(value2);
 
             // List DigitalTwins instances in Resource Group
             var twinsResources = DigitalTwinsClient.DigitalTwins.ListByResourceGroup(DigitalTwinsTestUtilities.DefaultResourceGroupName);
-            Assert.True(twinsResources.Count() > 0);
+            twinsResources.Count().Should().BeGreaterThan(0);
 
             // Get all of the available operations, ensure CRUD
             var operationList = DigitalTwinsClient.Operations.List();
-            Assert.True(operationList.Count() > 0);
+            operationList.Count().Should().BeGreaterThan(0);
             Assert.Contains(operationList, e => e.Name.Equals($"Microsoft.DigitalTwins/digitalTwinsInstances/read", StringComparison.OrdinalIgnoreCase));
             Assert.Contains(operationList, e => e.Name.Equals($"Microsoft.DigitalTwins/digitalTwinsInstances/write", StringComparison.OrdinalIgnoreCase));
             Assert.Contains(operationList, e => e.Name.Equals($"Microsoft.DigitalTwins/digitalTwinsInstances/delete", StringComparison.OrdinalIgnoreCase));
@@ -86,25 +90,25 @@ namespace DigitalTwins.Tests.ScenarioTests
 
             // Register Operation
             var registerOperations = operationList.Where(e => e.Name.Contains($"Microsoft.DigitalTwins/register"));
-            Assert.True(registerOperations.Count() > 0);
+            registerOperations.Count().Should().BeGreaterThan(0);
 
             // Twin Operations
             var twinOperations = operationList.Where(e => e.Name.Contains($"Microsoft.DigitalTwins/digitaltwins"));
-            Assert.True(twinOperations.Count() > 0);
+            twinOperations.Count().Should().BeGreaterThan(0);
 
             // Event Route Operations
             var eventRouteOperations = operationList.Where(e => e.Name.Contains($"Microsoft.DigitalTwins/eventroutes"));
-            Assert.True(eventRouteOperations.Count() > 0);
+            eventRouteOperations.Count().Should().BeGreaterThan(0);
 
             // Model operations
             var modelOperations = operationList.Where(e => e.Name.Contains($"Microsoft.DigitalTwins/models"));
-            Assert.True(modelOperations.Count() > 0);
+            modelOperations.Count().Should().BeGreaterThan(0);
 
             // Delete instance
             var deleteOp = DigitalTwinsClient.DigitalTwins.BeginDelete(
                 DigitalTwinsTestUtilities.DefaultResourceGroupName,
                 DigitalTwinsTestUtilities.DefaultInstanceName);
-            Assert.Equal(ProvisioningState.Deleting, deleteOp.ProvisioningState);
+            deleteOp.ProvisioningState.Should().Be(ProvisioningState.Deleting);
         }
     }
 }

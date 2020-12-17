@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.Azure.Management.ResourceManager" Version="3.7.0-preview" />
   </ItemGroup>
 </Project>
