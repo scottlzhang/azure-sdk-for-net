@@ -12,9 +12,11 @@ If any of the new objects needs to be overwritten, add the required changes to t
 ### AutoRest Configuration
 > see https://aka.ms/autorest
 
+IMPORTANT: Update input-file to reviewed version before merging to master
+
 ``` yaml
 input-file:
-    -  https://raw.githubusercontent.com/Azure/azure-rest-api-specs/f832cfc33fbd8b2333580b2979585ccfbc6d5992/specification/communication/data-plane/Microsoft.CommunicationServicesChat/preview/2020-11-01-preview3/communicationserviceschat.json
+    -  https://raw.githubusercontent.com/Azure/azure-rest-api-specs/017b204940fa77c9f439b42761f84291e86df744/specification/communication/data-plane/Microsoft.CommunicationServicesChat/preview/2020-11-01-preview3/communicationserviceschat.json
 payload-flattening-threshold: 10
 directive:
   from: swagger-document

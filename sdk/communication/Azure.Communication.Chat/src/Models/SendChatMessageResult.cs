@@ -5,8 +5,11 @@ using Azure.Core;
 
 namespace Azure.Communication.Chat
 {
-    [CodeGenModel("CreateChatThreadRequest")]
-    internal partial class CreateChatThreadRequest
+    /// <summary>
+    /// SendChatMessageResult
+    /// </summary>
+    [CodeGenModel("SendChatMessageResult")]
+    internal partial class SendChatMessageResult
     {
     }
 }
